@@ -1,75 +1,96 @@
 import {StyleSheet, View, ScrollView} from 'react-native';
 import React from 'react';
 import Pin from '../components/Pin';
+import {observer} from 'mobx-react-lite';
+import {pinsStore} from '../store/store';
+import MyText from '../components/MyText';
 
-const HomeScreen = () => {
+export interface IPin {
+  pin: {
+    urls: {
+      raw: string;
+    };
+    user: {
+      name: string;
+    };
+  };
+  id: string;
+}
+
+const HomeScreen: React.FC = observer(() => {
+  const [pins, setPins] = React.useState<IPin[]>([]);
+
+  React.useEffect(() => {
+    pinsStore.fetchPins();
+    setPins(pinsStore.allpins);
+  }, []);
+
+  if (pinsStore.error) {
+    return (
+      <View>
+        <MyText>{pinsStore.error}</MyText>
+      </View>
+    );
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.container__columnLeft}>
-        <Pin
-          title={'Text1'}
-          image={
-            'https://i0.wp.com/spartansboxing.com/wp-content/uploads/2023/08/Mike-Tyson.png?fit=1920%2C1080&ssl=1'
-          }
-        />
-        <Pin
-          title={'Text2'}
-          image={'https://www.surfertoday.com/images/stories/wave-quotes.jpg'}
-        />
-        <Pin
-          title={'Text3'}
-          image={
-            'https://www.refinery29.com/images/10977152.jpg?format=webp&width=720&height=864&quality=85'
-          }
-        />
+      <View style={{flex: 1}}>
+        {pins
+          .filter((_, index) => index % 2 == 1)
+          .map(pin => (
+            <Pin pin={pin} key={pin.id} />
+          ))}
       </View>
-      <View style={styles.container__columnRight}>
-        <Pin
-          title={'Text1'}
-          image={
-            'https://i0.wp.com/spartansboxing.com/wp-content/uploads/2023/08/Mike-Tyson.png?fit=1920%2C1080&ssl=1'
-          }
-        />
-        <Pin
-          title={'Text2'}
-          image={'https://www.surfertoday.com/images/stories/wave-quotes.jpg'}
-        />
-        <Pin
-          title={'Text3'}
-          image={
-            'https://www.refinery29.com/images/10977152.jpg?format=webp&width=720&height=864&quality=85'
-          }
-        />
+      <View style={{flex: 1}}>
+        {pins
+          .filter((_, index) => index % 2 == 0)
+          .map(pin => (
+            <Pin pin={pin} key={pin.id} />
+          ))}
       </View>
     </ScrollView>
   );
-};
+});
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
     flexDirection: 'row',
-    padding: 10,
-  },
-  container__columnLeft: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    width: '50%',
-    margin: 5,
-  },
-  container__columnRight: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'column',
-    width: '50%',
-    margin: 5,
+    padding: 5,
   },
 });
+
+// Мои попытки сделать бесконечный скролл
+
+// const [currentPage, setCurrentPage] = React.useState(1);
+
+// const loadMorePins = () => {
+//   setCurrentPage(currentPage + 1);
+// };
+
+// const renderLoader = () => {
+//   return (
+//     <View>
+//       <ActivityIndicator size={'large'} color={'#aaa'} />
+//     </View>
+//   );
+// };
+
+// <>
+//   <View style={{flex: 1}}>
+//     <FlatList
+//       data={pins.filter((_, index) => index % 2 == 1)}
+//       renderItem={renderItem}
+//       keyExtractor={item => item.id}
+//       ListFooterComponent={renderLoader}
+//       onEndReached={loadMorePins}
+//       onEndReachedThreshold={0}
+//     />
+//   </View>
+// </>
+
+// const renderItem = pin => {
+//   return <Pin pin={pin} />;
+// };
