@@ -19,7 +19,7 @@ class Pins {
     this.isFetching = true;
     axios
       .get(
-        `https://api.unsplash.com/photos?page=1&client_id=1lOatS8sZwQW2Ua0_kTP0NtSnl-0PldENIdJTZJ_ajo`,
+        `https://api.unsplash.com/photos?page=1&client_id=${env}`,
       )
       .then(response => {
         this.pins = response.data;
